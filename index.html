@@ -36,7 +36,7 @@
     let state=loadData(); const currentMonthData=()=>{ensureMonth(state,state.currentMonth);return state.months[state.currentMonth]}; const totalIncome=()=>state.incomes.reduce((s,x)=>s+Number(x.amount||0),0); const totalFixedBills=()=>state.fixedBills.reduce((s,x)=>s+Number(x.amount||0),0); const totalVariableExpected=()=>state.variableBills.reduce((s,x)=>s+Number(x.expected||0),0); const totalVariableActual=()=>state.variableBills.reduce((s,b)=>s+Number(currentMonthData().variableBillActuals[b.name]||0),0); const totalBudgetedSpending=()=>state.budgets.reduce((s,x)=>s+Number(x.amount||0),0); const totalActualSpending=()=>currentMonthData().transactions.reduce((s,x)=>s+Number(x.amount||0),0); const totalSavingsContributionThisMonth=()=>state.savingsGoals.reduce((s,g)=>s+Number(currentMonthData().savingsAdds[g.name]||0),0); const moneyLeft=()=>totalIncome()-totalFixedBills()-totalVariableActual()-totalActualSpending()-totalSavingsContributionThisMonth(); const saveData=()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
     function renderMetrics(){document.getElementById('monthLabel').textContent=monthLabel(state.currentMonth); const metrics=[['Income planned',totalIncome(),'good'],['Bills this month',totalFixedBills()+totalVariableActual(),''],['Spending this month',totalActualSpending(),''],['Money left',moneyLeft(),moneyLeft()>=0?'good':'bad']]; document.getElementById('metricCards').innerHTML=metrics.map(([label,value,klass])=>`<div class="card metric"><div class="label">${label}</div><div class="value ${klass}">${fmtMoney(value)}</div></div>`).join(''); const summary=[['Fixed bills',fmtMoney(totalFixedBills())],['Variable bills expected',fmtMoney(totalVariableExpected())],['Variable bills actual',fmtMoney(totalVariableActual())],['Budgeted spending',fmtMoney(totalBudgetedSpending())],['Actual spending',fmtMoney(totalActualSpending())],['Savings this month',fmtMoney(totalSavingsContributionThisMonth())]]; document.getElementById('monthSummary').innerHTML=summary.map(([a,b])=>`<div class="actions" style="justify-content:space-between"><span>${a}</span><strong>${b}</strong></div>`).join(''); document.getElementById('variableBillSummary').innerHTML=state.variableBills.map(b=>{const actual=Number(currentMonthData().variableBillActuals[b.name]||0); const diff=actual-Number(b.expected||0); const klass=diff>0?'warn':'good'; return `<div class="actions" style="justify-content:space-between;margin-bottom:10px"><span>${b.name}</span><span class="tiny">Expected ${fmtMoney(b.expected)} · Actual <strong>${fmtMoney(actual)}</strong> · <span class="${klass}">${diff>=0?'+':''}${fmtMoney(diff)}</span></span></div>`}).join('') || "<p class='tiny'>No variable bills yet.</p>"; document.getElementById('goalSummary').innerHTML=state.savingsGoals.map(g=>{const pct=Math.min(100,Math.round((Number(g.balance||0)/Number(g.target||1))*100)); return `<div class="goal"><div class="actions" style="justify-content:space-between"><strong>${g.name}</strong><span>${fmtMoney(g.balance)} / ${fmtMoney(g.target)}</span></div><div class="bar"><div style="width:${pct}%"></div></div><div class="tiny">${pct}% funded</div></div>`}).join(''); drawPieChart();}
     function drawPieChart(){const canvas=document.getElementById('pieChart'); const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); const data=[{label:'Fixed bills',value:totalFixedBills()},{label:'Variable bills',value:totalVariableActual()},{label:'Spending',value:totalActualSpending()},{label:'Savings',value:totalSavingsContributionThisMonth()}].filter(x=>x.value>0); if(!data.length){ctx.font='16px sans-serif';ctx.fillStyle='#7b6f68';ctx.fillText('Add bills or spending to see the chart.',24,50);return} const colors=['#8a6f63','#d6b8a4','#b5a191','#e8ddd3','#9f7f6e','#c7a995']; const total=data.reduce((s,x)=>s+x.value,0); let start=-Math.PI/2; const cx=130,cy=130,r=95; data.forEach((item,i)=>{const angle=(item.value/total)*Math.PI*2; ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+angle);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill(); start+=angle}); let y=24; ctx.font='14px sans-serif'; data.forEach((item,i)=>{ctx.fillStyle=colors[i%colors.length]; ctx.fillRect(250,y-10,12,12); ctx.fillStyle='#2f2a27'; ctx.fillText(`${item.label}: ${fmtMoney(item.value)}`,270,y); y+=28})}
-    function renderBudget(){
+   function renderBudget(){
   document.getElementById('budgetList').innerHTML =
     state.budgets.map((b,idx)=>`
       <div class="actions" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:10px 0">
@@ -184,6 +184,97 @@ document.body.addEventListener('change', e => {
 
   renderAll();
 });
+
+document.getElementById('addSpendBtn').addEventListener('click',()=>{
+  const description = document.getElementById('spendDesc').value.trim();
+  const category = document.getElementById('spendCategory').value;
+  const amount = Number(document.getElementById('spendAmount').value || 0);
+  const by = document.getElementById('spendBy').value;
+
+  if(!description || !amount) return alert('Add a description and amount.');
+
+  currentMonthData().transactions.push({
+    description,
+    category,
+    amount,
+    by,
+    date: new Date().toISOString()
+  });
+
+  document.getElementById('spendDesc').value = '';
+  document.getElementById('spendAmount').value = '';
+  renderAll();
+});
+
+function applyMonthlySavingsIfNeeded(key){
+  const month = state.months[key];
+  if(month._savingsApplied) return;
+
+  state.savingsGoals.forEach(g=>{
+    g.balance = Number(g.balance || 0) + Number(month.savingsAdds[g.name] || 0);
+  });
+
+  month._savingsApplied = true;
+}
+
+function changeMonth(direction){
+  const [y,m] = state.currentMonth.split('-').map(Number);
+  const d = new Date(y,m-1+direction,1);
+  const nextKey = monthKey(d);
+
+  if(!state.months[nextKey]){
+    ensureMonth(state,nextKey);
+    if(direction > 0){
+      state.variableBills.forEach(b=>{
+        state.months[nextKey].variableBillActuals[b.name] = '';
+      });
+      state.savingsGoals.forEach(g=>{
+        state.months[nextKey].savingsAdds[g.name] = g.monthlyContribution;
+      });
+    }
+  }
+
+  if(direction > 0) applyMonthlySavingsIfNeeded(state.currentMonth);
+
+  state.currentMonth = nextKey;
+  renderAll();
+}
+
+document.getElementById('prevMonthBtn').addEventListener('click',()=>changeMonth(-1));
+document.getElementById('nextMonthBtn').addEventListener('click',()=>changeMonth(1));
+
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `family-budget-backup-${state.currentMonth}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importFile').addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  state = JSON.parse(await file.text());
+  renderAll();
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(confirm('Reset to the sample data?')){
+    localStorage.removeItem(STORAGE_KEY);
+    state = loadData();
+    renderAll();
+  }
+});
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
+
+renderAll();
   </script>
 </body>
 </html>
