@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6f8f77" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Family Budget" />
+  <title>Family Budget</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Jess + Matt</p>
+        <h1>Family Budget</h1>
+      </div>
+      <button id="monthBtn" class="ghost-btn" aria-label="Change month"></button>
+    </header>
+
+    <main class="content">
+      <section id="dashboard" class="view active">
+        <div class="card hero">
+          <p class="muted">Monthly snapshot</p>
+          <div class="hero-grid">
+            <div>
+              <span class="label">Income</span>
+              <strong id="incomeTotal">$0</strong>
+            </div>
+            <div>
+              <span class="label">Planned bills</span>
+              <strong id="billsTotal">$0</strong>
+            </div>
+            <div>
+              <span class="label">Spent so far</span>
+              <strong id="spentTotal">$0</strong>
+            </div>
+            <div>
+              <span class="label">Left this month</span>
+              <strong id="leftoverTotal">$0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid two-up">
+          <div class="card">
+            <div class="section-head">
+              <h2>Income</h2>
+              <button class="mini-btn" data-open="incomeModal">Edit</button>
+            </div>
+            <div id="incomeList" class="stack-list"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <h2>Savings goals</h2>
+              <button class="mini-btn" data-open="goalModal">Add</button>
+            </div>
+            <div id="goalList" class="stack-list"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <h2>Budget by category</h2>
+            <button class="mini-btn" data-open="budgetModal">Edit</button>
+          </div>
+          <div id="budgetList" class="budget-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <h2>Upcoming bills</h2>
+            <button class="mini-btn" data-open="recurringModal">Add</button>
+          </div>
+          <div id="upcomingBills" class="stack-list"></div>
+        </div>
+      </section>
+
+      <section id="transactions" class="view">
+        <div class="card">
+          <div class="section-head">
+            <h2>Quick add expense</h2>
+          </div>
+          <form id="transactionForm" class="form-grid">
+            <input type="date" id="txnDate" required />
+            <input type="text" id="txnDescription" placeholder="Description" required />
+            <select id="txnCategory"></select>
+            <select id="txnPerson">
+              <option>Jess</option>
+              <option>Matt</option>
+              <option>Shared</option>
+            </select>
+            <input type="number" id="txnAmount" step="0.01" min="0" placeholder="Amount" required />
+            <button type="submit" class="primary-btn full">Save expense</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <h2>This month’s spending</h2>
+            <button id="clearMonthTransactions" class="mini-btn danger-outline">Clear month</button>
+          </div>
+          <div id="transactionList" class="stack-list"></div>
+        </div>
+      </section>
+
+      <section id="recurring" class="view">
+        <div class="card">
+          <div class="section-head">
+            <h2>Recurring monthly bills</h2>
+          </div>
+          <form id="recurringForm" class="form-grid">
+            <input type="text" id="recurringName" placeholder="Bill name" required />
+            <input type="number" id="recurringAmount" step="0.01" min="0" placeholder="Amount" required />
+            <input type="number" id="recurringDue" min="1" max="31" placeholder="Due day" required />
+            <select id="recurringCategory"></select>
+            <button type="submit" class="primary-btn full">Add recurring bill</button>
+          </form>
+        </div>
+        <div class="card">
+          <div id="recurringList" class="stack-list"></div>
+        </div>
+      </section>
+
+      <section id="goals" class="view">
+        <div class="card">
+          <div class="section-head">
+            <h2>Savings and sinking funds</h2>
+          </div>
+          <form id="goalForm" class="form-grid">
+            <input type="text" id="goalName" placeholder="Goal name" required />
+            <input type="number" id="goalTarget" step="0.01" min="0" placeholder="Target amount" required />
+            <input type="number" id="goalCurrent" step="0.01" min="0" placeholder="Current amount" required />
+            <input type="number" id="goalMonthly" step="0.01" min="0" placeholder="Monthly contribution" required />
+            <button type="submit" class="primary-btn full">Add goal</button>
+          </form>
+        </div>
+        <div class="card">
+          <div id="goalManagerList" class="stack-list"></div>
+        </div>
+      </section>
+
+      <section id="settings" class="view">
+        <div class="card">
+          <div class="section-head"><h2>Monthly income</h2></div>
+          <form id="incomeForm" class="form-grid">
+            <input type="number" id="incomeJess" step="0.01" min="0" placeholder="Jess income" />
+            <input type="number" id="incomeMatt" step="0.01" min="0" placeholder="Matt income" />
+            <input type="number" id="incomeSide" step="0.01" min="0" placeholder="Side hustle income" />
+            <button type="submit" class="primary-btn full">Save income</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="section-head"><h2>Budget categories</h2></div>
+          <form id="budgetForm" class="form-grid">
+            <input type="text" id="budgetCategoryName" placeholder="Category name" required />
+            <input type="number" id="budgetCategoryAmount" step="0.01" min="0" placeholder="Monthly budget" required />
+            <button type="submit" class="primary-btn full">Add category budget</button>
+          </form>
+          <div id="budgetManagerList" class="stack-list top-space"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-head"><h2>Backup</h2></div>
+          <div class="button-row">
+            <button id="exportBtn" class="ghost-btn wide">Export data</button>
+            <label class="ghost-btn wide upload-btn">
+              Import data
+              <input type="file" id="importFile" accept="application/json" hidden />
+            </label>
+          </div>
+          <p class="small muted">This app stores your budget on your device using local storage.</p>
+        </div>
+
+        <div class="card install-note">
+          <div class="section-head"><h2>Add to iPhone Home Screen</h2></div>
+          <ol>
+            <li>Open this app in Safari.</li>
+            <li>Tap the Share button.</li>
+            <li>Choose <strong>Add to Home Screen</strong>.</li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-view="dashboard">Home</button>
+      <button class="nav-btn" data-view="transactions">Spending</button>
+      <button class="nav-btn" data-view="recurring">Bills</button>
+      <button class="nav-btn" data-view="goals">Goals</button>
+      <button class="nav-btn" data-view="settings">Settings</button>
+    </nav>
+  </div>
+
+  <dialog id="budgetModal" class="modal"><div class="modal-card"><h3>Edit categories in Settings</h3><button class="primary-btn close-modal">Done</button></div></dialog>
+  <dialog id="goalModal" class="modal"><div class="modal-card"><h3>Add goals on the Goals tab</h3><button class="primary-btn close-modal">Done</button></div></dialog>
+  <dialog id="incomeModal" class="modal"><div class="modal-card"><h3>Edit income on the Settings tab</h3><button class="primary-btn close-modal">Done</button></div></dialog>
+  <dialog id="recurringModal" class="modal"><div class="modal-card"><h3>Add recurring bills on the Bills tab</h3><button class="primary-btn close-modal">Done</button></div></dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

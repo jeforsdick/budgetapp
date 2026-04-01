@@ -1,0 +1,201 @@
+:root {
+  --bg: #f6f3ed;
+  --card: #fffdf9;
+  --ink: #27312c;
+  --muted: #6f766f;
+  --line: #e7e0d5;
+  --accent: #6f8f77;
+  --accent-2: #d9e5d8;
+  --danger: #b95b5b;
+  --shadow: 0 8px 24px rgba(32, 38, 34, 0.07);
+  --radius: 20px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+button, input, select {
+  font: inherit;
+}
+.app-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 88px);
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+h1, h2, h3 { margin: 0; }
+h1 { font-size: 28px; }
+h2 { font-size: 18px; }
+.content { display: block; }
+.view { display: none; }
+.view.active { display: block; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.hero-grid, .grid.two-up {
+  display: grid;
+  gap: 12px;
+}
+.hero-grid { grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 10px; }
+@media (min-width: 720px) {
+  .grid.two-up { grid-template-columns: 1fr 1fr; }
+}
+.label, .muted, .small { color: var(--muted); }
+.label { display: block; font-size: 13px; margin-bottom: 4px; }
+strong { font-size: 22px; }
+.section-head, .row-between, .stack-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.stack-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+.stack-item {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px;
+  background: #fff;
+}
+.stack-item p { margin: 4px 0 0; }
+.budget-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+.progress-wrap {
+  height: 10px;
+  border-radius: 999px;
+  background: #edf0ea;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.form-grid .full { grid-column: 1 / -1; }
+@media (max-width: 560px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+input, select, button {
+  min-height: 46px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 0 14px;
+}
+button { cursor: pointer; }
+.primary-btn {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.ghost-btn, .mini-btn {
+  background: #f5f7f4;
+  color: var(--ink);
+}
+.mini-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+.danger-outline {
+  color: var(--danger);
+  border-color: #ead1d1;
+  background: #fff8f8;
+}
+.top-space { margin-top: 12px; }
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: min(860px, 100%);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 12px 14px calc(env(safe-area-inset-bottom) + 10px);
+  background: rgba(246, 243, 237, 0.95);
+  backdrop-filter: blur(12px);
+}
+.nav-btn {
+  min-height: 48px;
+  background: #fffdf9;
+}
+.nav-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.wide { width: 100%; }
+.modal {
+  border: none;
+  background: transparent;
+  width: min(92vw, 360px);
+}
+.modal::backdrop { background: rgba(0,0,0,0.22); }
+.modal-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.install-note ol {
+  padding-left: 18px;
+  margin-bottom: 0;
+}
+.income-pill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f5f7f4;
+  margin-top: 8px;
+}
+.delete-btn {
+  min-height: 30px;
+  padding: 0 10px;
+  color: var(--danger);
+  background: #fff7f7;
+  border-color: #f0dada;
+}
