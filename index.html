@@ -21,8 +21,41 @@
 <body>
   <div class="wrap">
     <div class="topbar"><div class="title"><h1>Family Budget</h1><p>Budget, bills, savings, and monthly planning</p></div><div class="month-nav"><button id="prevMonthBtn">‹</button><strong id="monthLabel"></strong><button id="nextMonthBtn">›</button></div></div>
-    <section id="dashboard" class="section active"><div class="row row-4" id="metricCards"></div><div class="row row-2" style="margin-top:14px"><div class="card"><h2>Where your money is going</h2><p class="sub">Current month actuals by category group</p><canvas id="pieChart" width="400" height="280"></canvas></div><div class="card"><h2>Month at a glance</h2><div class="stack" id="monthSummary"></div></div></div><div class="row row-2" style="margin-top:14px"><div class="card"><h2>Variable bills</h2><p class="sub">Expected versus actual for this month</p><div id="variableBillSummary"></div></div><div class="card"><h2>Savings progress</h2><div id="goalSummary" class="stack"></div></div></div></section>
-    <section id="budget" class="section"><div class="row row-2"><div class="card"><h2>Monthly budgets</h2><p class="sub">These repeat into future months unless you change them.</p><div id="budgetList"></div></div><div class="card"><h2>Income plan</h2><p class="sub">Jess, Matt, and side hustle included by default.</p><div id="incomeList"></div></div></div></section>
+<section id="dashboard" class="section active">
+  <div class="row row-4" id="metricCards"></div>
+
+  <div class="row row-2" style="margin-top:14px">
+    <div class="card">
+      <h2>Where your money is going</h2>
+      <p class="sub">Current month actuals by category group</p>
+      <canvas id="pieChart" width="400" height="280"></canvas>
+    </div>
+    <div class="card">
+      <h2>Month at a glance</h2>
+      <div class="stack" id="monthSummary"></div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <div class="card">
+      <h2>Spending breakdown</h2>
+      <p class="sub">Fixed bills, savings, and spending by person and category</p>
+      <canvas id="breakdownChart" width="650" height="320"></canvas>
+    </div>
+  </div>
+
+  <div class="row row-2" style="margin-top:14px">
+    <div class="card">
+      <h2>Variable bills</h2>
+      <p class="sub">Expected versus actual for this month</p>
+      <div id="variableBillSummary"></div>
+    </div>
+    <div class="card">
+      <h2>Savings progress</h2>
+      <div id="goalSummary" class="stack"></div>
+    </div>
+  </div>
+</section>    <section id="budget" class="section"><div class="row row-2"><div class="card"><h2>Monthly budgets</h2><p class="sub">These repeat into future months unless you change them.</p><div id="budgetList"></div></div><div class="card"><h2>Income plan</h2><p class="sub">Jess, Matt, and side hustle included by default.</p><div id="incomeList"></div></div></div></section>
     <section id="bills" class="section"><div class="row row-2"><div class="card"><h2>Recurring bills</h2><p class="sub">Fixed bills repeat automatically month to month.</p><div id="fixedBillsList"></div></div><div class="card"><h2>Variable bills</h2><p class="sub">Use expected values for planning, then enter actuals each month.</p><div id="variableBillsList"></div></div></div></section>
     <section id="spending" class="section"><div class="row row-2"><div class="card"><h2>Add spending</h2><div class="stack"><input id="spendDesc" placeholder="Description" /><select id="spendCategory"></select><input id="spendAmount" type="number" step="0.01" placeholder="Amount" /><select id="spendBy"><option>Jess</option><option>Matt</option><option>Shared</option></select><button class="primary" id="addSpendBtn">Add transaction</button></div></div><div class="card"><h2>This month’s transactions</h2><div id="transactionList"></div></div></div></section>
     <section id="savings" class="section"><div class="row row-2"><div class="card"><h2>Savings goals</h2><p class="sub">Balances continue month to month.</p><div id="savingsList" class="stack"></div></div><div class="card"><h2>Backup</h2><p class="sub">Export your data for safekeeping or import it later.</p><div class="actions"><button class="soft" id="exportBtn">Export backup</button><label class="soft" for="importFile" style="display:inline-block;cursor:pointer">Import backup</label><input id="importFile" type="file" accept="application/json" style="display:none" /><button class="soft" id="resetBtn">Reset sample data</button></div><p class="tiny" style="margin-top:12px">This app stores data in the browser on the device you use.</p></div></div></section>
