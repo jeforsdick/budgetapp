@@ -182,7 +182,8 @@ function renderBreakdownChart() {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const dataPoints = getPieBreakdownData();
+const dataPoints = getPieBreakdownData();
+canvas.height = Math.max(320, dataPoints.length * 30);
 
   if (!dataPoints.length) {
     ctx.font = '16px sans-serif';
