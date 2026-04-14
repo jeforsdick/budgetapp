@@ -77,7 +77,9 @@ function render() {
   document.getElementById('incomeTotal').textContent = money(totalIncome());
   document.getElementById('billsTotal').textContent = money(totalBills());
   document.getElementById('spentTotal').textContent = money(totalSpent());
-  document.getElementById('leftoverTotal').textContent = money(totalIncome() - totalBills() - totalSpent());
+  document.getElementById('leftoverTotal').textContent = money(
+    totalIncome() - totalBills() - totalSavingsPlanned() - totalSpent()
+  );
 
   renderIncome();
   renderGoals();
@@ -89,6 +91,7 @@ function render() {
   renderBudgetManager();
   populateCategoryDropdowns();
   setFormValues();
+  renderBreakdownChart();
   saveData();
 }
 function renderIncome() {
@@ -131,6 +134,100 @@ function renderBudgets() {
         <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
       </div>`;
   }).join('');
+}
+function totalSavingsPlanned() {
+  return data.goals.reduce((a, g) => a + Number(g.monthly || 0), 0);
+}
+
+function getPieBreakdownData() {
+  const slices = [];
+
+  const fixedBills = totalBills();
+  if (fixedBills > 0) {
+    slices.push({
+      label: 'Fixed bills',
+      value: fixedBills,
+    });
+  }
+
+  const savings = totalSavingsPlanned();
+  if (savings > 0) {
+    slices.push({
+      label: 'Savings',
+      value: savings,
+    });
+  }
+
+  const grouped = {};
+  getMonthTransactions().forEach(t => {
+    const person = t.person || 'Shared';
+    const category = t.category || 'Other';
+    const key = `${person} • ${category}`;
+    grouped[key] = (grouped[key] || 0) + Number(t.amount || 0);
+  });
+
+  Object.entries(grouped).forEach(([label, value]) => {
+    if (value > 0) {
+      slices.push({ label, value });
+    }
+  });
+
+  return slices;
+}
+
+function renderBreakdownChart() {
+  const canvas = document.getElementById('breakdownChart');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const dataPoints = getPieBreakdownData();
+
+  if (!dataPoints.length) {
+    ctx.font = '16px sans-serif';
+    ctx.fillStyle = '#7b6f68';
+    ctx.fillText('Add bills, savings, or spending to see the chart.', 20, 40);
+    return;
+  }
+
+  const colors = [
+    '#8a6f63', '#d6b8a4', '#b5a191', '#e8ddd3', '#9f7f6e', '#c7a995',
+    '#7f8c8d', '#a1887f', '#bcaaa4', '#8d6e63', '#c5b0a3', '#9e8b82'
+  ];
+
+  const total = dataPoints.reduce((sum, item) => sum + item.value, 0);
+  let start = -Math.PI / 2;
+
+  const cx = 130;
+  const cy = 130;
+  const r = 95;
+
+  dataPoints.forEach((item, i) => {
+    const angle = (item.value / total) * Math.PI * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+
+    start += angle;
+  });
+
+  let y = 24;
+  ctx.font = '13px sans-serif';
+
+  dataPoints.forEach((item, i) => {
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fillRect(250, y - 10, 12, 12);
+
+    ctx.fillStyle = '#2f2a27';
+    ctx.fillText(`${item.label}: ${moneyPrecise(item.value)}`, 270, y);
+
+    y += 24;
+  });
 }
 function renderUpcomingBills() {
   const el = document.getElementById('upcomingBills');
